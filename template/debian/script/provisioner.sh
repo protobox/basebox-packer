@@ -11,6 +11,7 @@ set -o nounset
 #   'provisionerless' -- build a box without a provisioner
 #   'chef'            -- build a box with the Chef provisioner
 #   'salt'            -- build a box with the Salt provisioner
+#   'ansible'         -- build a box with the Ansible provisioner
 #
 # When $PROVISIONER != 'provisionerless' valid options for
 # $PROVISIONER_VERSION are:
@@ -36,6 +37,26 @@ case "${PROVISIONER}" in
     else
       echo "Installing Salt version $PROVISIONER_VERSION"
       curl -L http://bootstrap.saltstack.org | sudo sh -s -- git $PROVISIONER_VERSION
+    fi
+    ;;
+
+  'ansible')
+    echo "Installing Ansible dependencies"
+    ubuntu_release=$(lsb_release -rs)
+    if [[ "${ubuntu_release}" == "10.04" ]] || [[ "${ubuntu_release}" == "10.10" ]] || [[ "${ubuntu_release}" == "12.04" ]] || [[ "${ubuntu_release}" == "12.10" ]]
+    then
+      apt-get -y install python-software-properties
+    else
+      apt-get -y install software-properties-common
+    fi
+    add-apt-repository ppa:rquillo/ansible
+    apt-get -y update
+    if [[ ${PROVISIONER_VERSION} == 'latest' ]]; then
+      echo "Installing latest Ansible version"
+      apt-get -y install ansible
+    else
+      echo "Installing Ansible version $PROVISIONER_VERSION"
+      apt-get -y install "ansible-$PROVISIONER_VERSION"
     fi
     ;;
 

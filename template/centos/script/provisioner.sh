@@ -11,6 +11,7 @@ set -o nounset
 #   'provisionerless' -- build a box without a provisioner
 #   'chef'            -- build a box with the Chef provisioner
 #   'salt'            -- build a box with the Salt provisioner
+#   'ansible'         -- build a box with the Ansible provisioner
 #
 # When $PROVISIONER != 'provisionerless' valid options for
 # $PROVISIONER_VERSION are:
@@ -36,6 +37,16 @@ case "${PROVISIONER}" in
     else
       echo "Installing Salt version $PROVISIONER_VERSION"
       curl -L http://bootstrap.saltstack.org | sudo sh -s -- git $PROVISIONER_VERSION
+    fi
+    ;;
+
+  'ansible')
+    if [[ ${PROVISIONER_VERSION} == 'latest' ]]; then
+      echo "Installing latest Ansible version"
+      yum -y install ansible
+    else
+      echo "Installing Ansible version $PROVISIONER_VERSION"
+      yum -y install "ansible-$PROVISIONER_VERSION"
     fi
     ;;
 
